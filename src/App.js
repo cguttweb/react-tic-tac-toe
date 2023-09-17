@@ -3,15 +3,11 @@ import { useState } from "react";
 
 
 function Square({ value, onSquareClick }) {
-  // value is a prop being passed down from the Board component and onSquareClick is 
+  // value is a prop being passed down from the Board component and onSquareClick is a function
   return <button className="square" onClick={onSquareClick}>{value}</button>
 }
 
-export default function Board() {
-  // creates array with 9 elements set them all to null
-  const [squares, setSquares] = useState(Array(9).fill(null))
-  const [xIsNext, setXIsNext] = useState(true) // set X as first move by default flipped to see which players goes next
-
+function Board({ xIsNext, squares, onPlay }) {
   function handleClick(i) {
     // check if square already had X or O value if yes return early so board state is not updated
     if (squares[i] || calculateWinner(squares)) {
@@ -20,15 +16,14 @@ export default function Board() {
 
     // updates the squares array which has the Board state
     const nextSquares = squares.slice() // used to create a copy of the squares array rather than mutating the original array
-    // nextSquares[0] = 'X'//hardcoded means can only add x to top left square instead becomes this
+    // nextSquares[0] = 'X'// hardcoded means can only add x to top left square instead becomes this
     if (xIsNext) {
       nextSquares[i] = 'X'
     } else {
       nextSquares[i] = 'O'
     }
-
-    setSquares(nextSquares)
-    setXIsNext(!xIsNext)
+    // replaced setSquares and setXIsNext with a single call to onPlay function
+    onPlay(nextSquares)
   }
 
   const winner = calculateWinner(squares)
@@ -38,7 +33,7 @@ export default function Board() {
 
   // Board needs to pass value prop down to each of the squares it renders
   return (
-    <div>
+    <>
       <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
@@ -55,8 +50,53 @@ export default function Board() {
         <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </div>
-    </div>
+    </>
   );
+}
+// one default export per file so game becomes top-level component
+export default function Game(){
+  const [xIsNext, setXIsNext] = useState(true)
+  const [history, setHistory] = useState([Array(9).fill(null)])
+  const currentSquares = history[history.length - 1]
+
+  // will be called by Board component to update the game
+  function handlePlay(nextSquares){
+    // used to store Game state to trigger a re-render instead of setSquares used previously
+    setHistory([...history, nextSquares])
+    // toggle X as used to be in Board function
+    setXIsNext(!xIsNext)
+  }
+
+  function jumpTo(nextMove){
+
+  }
+
+  const moves = history.map((squares, move) => {
+    let description
+    if (move > 0) {
+      description = `Go to move #${move}`
+    } else {
+      description = `Go to game start`
+    }
+
+    return (
+      <li>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    )
+  })
+
+  return (
+    <div className="game">
+      <div className="game-board">
+      {/* Passing xIsNext, currentSquares and handlePlay as props */}
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  )
 }
 
 function calculateWinner(squares) {

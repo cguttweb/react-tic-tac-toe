@@ -1,15 +1,14 @@
 {
   "dependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-scripts": "^5.0.0"
+    "react-dom": "^18.0.0"
   },
   "main": "/index.js",
   "devDependencies": {
-    "react-scripts": "1.0.0"
+    "react-scripts": "^5.0.0"
   },
-  "name": "Tic-Tac-Toe",
-  "description": null,
+  "name": "TicTacToe",
+  "description": "Tic Tac Toe game built with React",
   "version": "0.0.0",
   "scripts": {
     "start": "react-scripts start",
