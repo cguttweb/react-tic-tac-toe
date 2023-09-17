@@ -55,20 +55,24 @@ function Board({ xIsNext, squares, onPlay }) {
 }
 // one default export per file so game becomes top-level component
 export default function Game(){
-  const [xIsNext, setXIsNext] = useState(true)
   const [history, setHistory] = useState([Array(9).fill(null)])
-  const currentSquares = history[history.length - 1]
+  // track current step user is looking at
+  const [currentMove, setCurrentMove] = useState(0)
+  const xIsNext = currentMove % 2 === 0
+  // instead of final move now tracking currentMove
+  const currentSquares = history[currentMove]
 
   // will be called by Board component to update the game
   function handlePlay(nextSquares){
-    // used to store Game state to trigger a re-render instead of setSquares used previously
-    setHistory([...history, nextSquares])
-    // toggle X as used to be in Board function
-    setXIsNext(!xIsNext)
+    // add nextSquares after history.slice so only keeping that part of old history
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+    setHistory(nextHistory)
+    setCurrentMove(nextHistory.length - 1)
   }
 
   function jumpTo(nextMove){
-
+    // update currentMove
+    setCurrentMove(nextMove)
   }
 
   const moves = history.map((squares, move) => {
@@ -80,7 +84,8 @@ export default function Game(){
     }
 
     return (
-      <li>
+      // need to add a key
+      <li key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
       </li>
     )
